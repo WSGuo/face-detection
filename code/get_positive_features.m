@@ -21,15 +21,40 @@ function features_pos = get_positive_features(train_path_pos, feature_params)
 % is the template dimensionality, which would be
 %   (feature_params.template_size / feature_params.hog_cell_size)^2 * 31
 % if you're using the default vl_hog parameters
-
 % Useful functions:
 % vl_hog, HOG = VL_HOG(IM, CELLSIZE)
 %  http://www.vlfeat.org/matlab/vl_hog.html  (API)
 %  http://www.vlfeat.org/overview/hog.html   (Tutorial)
 % rgb2gray
-
 image_files = dir( fullfile( train_path_pos, '*.jpg') ); %Caltech Faces stored as .jpg
-num_images = length(image_files);
+numOfImg = length(image_files);
+disp('number of img')
+disp(numOfImg)
+numOfCell = feature_params.template_size / feature_params.hog_cell_size;
+disp('num of cell')
+disp(numOfCell)
+D = (numOfCell)^2 * 31;
+features_pos = rand(numOfImg, D);
+for iter = 1:numOfImg
+    imgPath=fullfile(train_path_pos, image_files(iter).name);
+    %disp(imgPath)
+    img =imread(imgPath);
+    if size(img,3) >= 2 
+        img = rgb2gray(img); 
+    end
+    %disp(size(img))
+    HOG=vl_hog(single(img),feature_params.hog_cell_size);
+    %HOG=vl_hog(single(img),feature_params.hog_cell_size,'variant','dalaltriggs');
+    %disp('dimension of HOG one img')
+    %disp(size(HOG));
+    HOG = reshape(HOG,[1,D]);
+    %disp('dimension of HOG after reshape')
+    %disp(size(HOG));
+    features_pos(iter,:)=reshape(HOG,[1,D]); 
+    %disp('feature pos dimention one iter')
+    %disp(size(features_pos))
 
+end
 % placeholder to be deleted
-features_pos = rand(100, (feature_params.template_size / feature_params.hog_cell_size)^2 * 31);
+features_pos = rand(100, D);
+end
