@@ -35,5 +35,41 @@ function features_neg = get_random_negative_features(non_face_scn_path, feature_
 image_files = dir( fullfile( non_face_scn_path, '*.jpg' ));
 num_images = length(image_files);
 
+%todo
+count = 0;
+D = (feature_params.template_size / feature_params.hog_cell_size)^2 * 31;
+features_neg = [];
+for i= 1:num_images
+    
+    FullFile = fullfile( non_face_scn_path, image_files(i).name);
+    img = imread(FullFile);
+    img_gray = rgb2gray(img);
+    img_hog = vl_hog(single(img_gray),feature_params.hog_cell_size, 'variant','DalalTriggs');
+    [hog_height,hog_width,hog_chn] = size(img_hog);
+    ratio = feature_params.template_size/feature_params.hog_cell_size;
+    [img_height,img_width,img_chn] = size(img_gray);
+    temp_height = floor(img_height/feature_params.template_size);
+    temp_width = floor(img_width/feature_params.template_size);
+    max_index = max(temp_height,temp_width);
+    
+    for j = 1:max_index
+        %sample
+        randi_height = randi(temp_height);
+        randi_width = randi(temp_width);
+        %retrieve the hog in corresponding template
+        start_h = 1+(randi_height-1)*ratio;
+        start_w = 1+(randi_width-1)*ratio;
+        end_h = randi_height*ratio;
+        end_w = randi_width*ratio;
+        
+        %disp(size((img_hog(start_h:end_h,start_w:end_w,1:31))));
+        
+        this_neg = reshape((img_hog(start_h:end_h,start_w:end_w,1:31)),[1,D]);
+        features_neg = [features_neg;this_neg];
+    end
+        
+
+end
+
 % placeholder to be deleted
-features_neg = rand(100, (feature_params.template_size / feature_params.hog_cell_size)^2 * 31);
+%features_neg = rand(100, (feature_params.template_size / feature_params.hog_cell_size)^2 * 31);
