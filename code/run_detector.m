@@ -64,36 +64,46 @@ for i = 1:length(test_scenes)
     [hog_height,hog_width,hog_chn] = size(img_hog);
     ratio = feature_params.template_size/feature_params.hog_cell_size;
     [img_height,img_width,img_chn] = size(img);
-    hog_end_h = floor(hog_height-feature_params.template_size)/step_size+1;
-    hog_end_w = floor(hog_width-feature_params.template_size)/step_size+1;
+    hog_end_h = floor(hog_height-ratio/step_size)+1;
+    hog_end_w = floor(hog_width-ratio/step_size)+1;
     
-    for i= 1:step_size:hog_end_h
+    cur_image_ids = [];
+    cur_bboxes = [];
+    cur_confidences = [];
+    
+    for k= 1:step_size:hog_end_h
         for j = 1:step_size:hog_end_w
-            start_w = 1+(j-1)*ratio;
-            start_h = 1+(i-1)*ratio;
-            end_w = j*ratio;
-            end_x = i*ratio;
+            start_w = j;
+            start_h = k;
+            end_w = j+ratio-1;
+            end_h = k+ratio-1;
             
             cur_x_min = 1+(start_w-1)*feature_params.hog_cell_size;
-            cur_x_max = end_w*feature_params.hog_cell_size;
+            cur_x_max = end_w*feature_params.hog_cell_size;            
             
-            cur_y_min = 1+(start_y-1)*feature_params.hog_cell_size;
+            cur_y_min = 1+(start_h-1)*feature_params.hog_cell_size;
             cur_y_max = end_h*feature_params.hog_cell_size;
             
-            cur_bboxes = [cur_x_min,cur_y_min,cur_x_max,cur_y_max];
+            cur_bboxes = [cur_bboxes;[cur_x_min,cur_y_min,cur_x_max,cur_y_max]];
+            this_hog = reshape((img_hog(start_h:end_h,start_w:end_w,1:31)),[1,D]);
             
-            cur_confidences = 
-    
-    
-    cur_confidences = rand(15,1) * 4 - 2; %confidences in the range [-2 2]
-    cur_image_ids(1:15,1) = {test_scenes(i).name};
-    
+            this_con = this_hog*w+b;
+            cur_confidences = [cur_confidences;this_con(1)];
+            cur_image_ids = [cur_image_ids;{test_scenes(i).name}];
+        end
+    end
     %non_max_supr_bbox can actually get somewhat slow with thousands of
     %initial detections. You could pre-filter the detections by confidence,
     %e.g. a detection with confidence -1.1 will probably never be
     %meaningful. You probably _don't_ want to threshold at 0.0, though. You
     %can get higher recall with a lower threshold. You don't need to modify
     %anything in non_max_supr_bbox, but you can.
+    
+    %size(cur_bboxes)
+    %size(cur_confidences)
+    %size(img)
+    %disp(size(img));
+    %disp(size(cur_bboxes));
     [is_maximum] = non_max_supr_bbox(cur_bboxes, cur_confidences, size(img));
 
     cur_confidences = cur_confidences(is_maximum,:);

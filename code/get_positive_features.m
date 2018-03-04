@@ -56,5 +56,5 @@ for iter = 1:numOfImg
 
 end
 % placeholder to be deleted
-features_pos = rand(100, D);
+%features_pos = rand(100, D);
 end

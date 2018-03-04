@@ -78,7 +78,7 @@ features_neg = get_random_negative_features( non_face_scn_path, feature_params, 
 %100*(6*6*31)
 [posImgNum, ~] = size(features_pos);
 [negImgNum, ~] = size(features_neg);
-Y = [ones(posN,1);(-1)*ones(negN,1)];
+Y = [ones(posImgNum,1);(-1)*ones(negImgNum,1)];
 
 %regularization parameter, may be tuned
 lambda = 0.0001; 

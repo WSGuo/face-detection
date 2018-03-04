@@ -43,11 +43,13 @@ for i= 1:num_images
     
     FullFile = fullfile( non_face_scn_path, image_files(i).name);
     img = imread(FullFile);
-    img_gray = rgb2gray(img);
-    img_hog = vl_hog(single(img_gray),feature_params.hog_cell_size);
+    if size(img,3) >= 2 
+        img = rgb2gray(img); 
+    end
+    img_hog = vl_hog(single(img),feature_params.hog_cell_size);
     [hog_height,hog_width,hog_chn] = size(img_hog);
     ratio = feature_params.template_size/feature_params.hog_cell_size;
-    [img_height,img_width,img_chn] = size(img_gray);
+    [img_height,img_width,img_chn] = size(img);
     temp_height = floor(img_height/feature_params.template_size);
     temp_width = floor(img_width/feature_params.template_size);
     max_index = max(temp_height,temp_width);
@@ -66,6 +68,10 @@ for i= 1:num_images
         %disp(size(img_hog));
         this_neg = reshape((img_hog(start_h:end_h,start_w:end_w,1:31)),[1,D]);
         features_neg = [features_neg;this_neg];
+        count = count+1;
+        if(count>num_samples)
+            break;
+        end;
     end
         
 
