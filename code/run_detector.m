@@ -64,8 +64,8 @@ for i = 1:length(test_scenes)
     [hog_height,hog_width,hog_chn] = size(img_hog);
     ratio = feature_params.template_size/feature_params.hog_cell_size;
     [img_height,img_width,img_chn] = size(img);
-    hog_end_h = floor(hog_height-ratio/step_size)+1;
-    hog_end_w = floor(hog_width-ratio/step_size)+1;
+    hog_end_h = floor((hog_height-ratio)/step_size)+1;
+    hog_end_w = floor((hog_width-ratio)/step_size)+1;
     
     cur_image_ids = [];
     cur_bboxes = [];
