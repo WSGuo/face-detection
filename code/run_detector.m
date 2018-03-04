@@ -46,6 +46,9 @@ bboxes = zeros(0,4);
 confidences = zeros(0,1);
 image_ids = cell(0,1);
 
+step_size = 1;
+D = (feature_params.template_size / feature_params.hog_cell_size)^2 * 31;
+
 for i = 1:length(test_scenes)
       
     fprintf('Detecting faces in %s\n', test_scenes(i).name)
@@ -55,11 +58,33 @@ for i = 1:length(test_scenes)
         img = rgb2gray(img);
     end
     
-    %You can delete all of this below.
-    % Let's create 15 random detections per image
-    cur_x_min = rand(15,1) * size(img,2);
-    cur_y_min = rand(15,1) * size(img,1);
-    cur_bboxes = [cur_x_min, cur_y_min, cur_x_min + rand(15,1) * 50, cur_y_min + rand(15,1) * 50];
+    %todo
+    
+    img_hog = vl_hog(single(img),feature_params.hog_cell_size);
+    [hog_height,hog_width,hog_chn] = size(img_hog);
+    ratio = feature_params.template_size/feature_params.hog_cell_size;
+    [img_height,img_width,img_chn] = size(img);
+    hog_end_h = floor(hog_height-feature_params.template_size)/step_size+1;
+    hog_end_w = floor(hog_width-feature_params.template_size)/step_size+1;
+    
+    for i= 1:step_size:hog_end_h
+        for j = 1:step_size:hog_end_w
+            start_w = 1+(j-1)*ratio;
+            start_h = 1+(i-1)*ratio;
+            end_w = j*ratio;
+            end_x = i*ratio;
+            
+            cur_x_min = 1+(start_w-1)*feature_params.hog_cell_size;
+            cur_x_max = end_w*feature_params.hog_cell_size;
+            
+            cur_y_min = 1+(start_y-1)*feature_params.hog_cell_size;
+            cur_y_max = end_h*feature_params.hog_cell_size;
+            
+            cur_bboxes = [cur_x_min,cur_y_min,cur_x_max,cur_y_max];
+            
+            cur_confidences = 
+    
+    
     cur_confidences = rand(15,1) * 4 - 2; %confidences in the range [-2 2]
     cur_image_ids(1:15,1) = {test_scenes(i).name};
     
