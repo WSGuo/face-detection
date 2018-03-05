@@ -33,7 +33,7 @@ disp(numOfImg)
 numOfCell = feature_params.template_size / feature_params.hog_cell_size;
 disp('num of cell')
 disp(numOfCell)
-D = (numOfCell)^2 * 31;
+D = (numOfCell)^2 * 36;
 features_pos = rand(numOfImg, D);
 for iter = 1:numOfImg
     imgPath=fullfile(train_path_pos, image_files(iter).name);
@@ -43,8 +43,8 @@ for iter = 1:numOfImg
         img = rgb2gray(img); 
     end
     %disp(size(img))
-    HOG=vl_hog(single(img),feature_params.hog_cell_size);
-    %HOG=vl_hog(single(img),feature_params.hog_cell_size,'variant','dalaltriggs');
+    %HOG=vl_hog(single(img),feature_params.hog_cell_size);
+    HOG=vl_hog(single(img),feature_params.hog_cell_size,'variant','dalaltriggs');
     %disp('dimension of HOG one img')
     %disp(size(HOG));
     HOG = reshape(HOG,[1,D]);

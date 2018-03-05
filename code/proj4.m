@@ -60,7 +60,7 @@ feature_params = struct('template_size', 36, 'hog_cell_size', 6);
 
 features_pos = get_positive_features( train_path_pos, feature_params );
 
-num_negative_examples = 30000; %Higher will work strictly better, but you should start with 10000 for debugging
+num_negative_examples = 20000; %Higher will work strictly better, but you should start with 10000 for debugging
 features_neg = get_random_negative_features( non_face_scn_path, feature_params, num_negative_examples);
 
     
@@ -112,8 +112,8 @@ hold off;
 
 % Visualize the learned detector. This would be a good thing to include in
 % your writeup!
-n_hog_cells = sqrt(length(w) / 31); %specific to default HoG parameters
-imhog = vl_hog('render', single(reshape(w, [n_hog_cells n_hog_cells 31])), 'verbose') ;
+n_hog_cells = sqrt(length(w) / 36); %specific to default HoG parameters
+imhog = vl_hog('render', single(reshape(w, [n_hog_cells n_hog_cells 36])),'variant','dalaltriggs', 'verbose') ;
 figure(3); imagesc(imhog) ; colormap gray; set(3, 'Color', [.988, .988, .988])
 
 pause(0.1) %let's ui rendering catch up
