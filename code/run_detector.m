@@ -58,7 +58,16 @@ for i = 1:length(test_scenes)
         img = rgb2gray(img);
     end
     
+    cur_image_ids = [];
+    cur_bboxes = [];
+    cur_confidences = [];
+    
+    
+    
+    img_original = img;
     %todo
+    rate = 1;
+    while ((size(img,1)>feature_params.template_size)&&(size(img,2)>feature_params.template_size))
     
     img_hog = vl_hog(single(img),feature_params.hog_cell_size);
     [hog_height,hog_width,hog_chn] = size(img_hog);
@@ -67,9 +76,7 @@ for i = 1:length(test_scenes)
     hog_end_h = floor((hog_height-ratio)/step_size)+1;
     hog_end_w = floor((hog_width-ratio)/step_size)+1;
     
-    cur_image_ids = [];
-    cur_bboxes = [];
-    cur_confidences = [];
+
     
     for k= 1:step_size:hog_end_h
         for j = 1:step_size:hog_end_w
@@ -78,20 +85,36 @@ for i = 1:length(test_scenes)
             end_w = j+ratio-1;
             end_h = k+ratio-1;
             
-            cur_x_min = 1+(start_w-1)*feature_params.hog_cell_size;
-            cur_x_max = end_w*feature_params.hog_cell_size;            
+            cur_x_min = floor((1+(start_w-1)*feature_params.hog_cell_size)/rate);
+            cur_x_max = floor((end_w*feature_params.hog_cell_size)/rate);            
             
-            cur_y_min = 1+(start_h-1)*feature_params.hog_cell_size;
-            cur_y_max = end_h*feature_params.hog_cell_size;
+            cur_y_min = floor((1+(start_h-1)*feature_params.hog_cell_size)/rate);
+            cur_y_max = floor((end_h*feature_params.hog_cell_size)/rate);
             
-            cur_bboxes = [cur_bboxes;[cur_x_min,cur_y_min,cur_x_max,cur_y_max]];
             this_hog = reshape((img_hog(start_h:end_h,start_w:end_w,1:31)),[1,D]);
             
             this_con = this_hog*w+b;
+            
+            if(this_con(1)<0.9)
+                if((size(cur_bboxes,1)==0)&&(this_con(1)>0))
+                    %do nothing                
+                elseif max(cur_confidences(:))<this_con(1)
+                    %do nothing
+                else
+                    continue;
+                end
+            end
+            
+            cur_bboxes = [cur_bboxes;[cur_x_min,cur_y_min,cur_x_max,cur_y_max]];
+            
             cur_confidences = [cur_confidences;this_con(1)];
             cur_image_ids = [cur_image_ids;{test_scenes(i).name}];
         end
     end
+    img = imresize(img,0.9);
+    rate = rate*0.9;
+    end
+    
     %non_max_supr_bbox can actually get somewhat slow with thousands of
     %initial detections. You could pre-filter the detections by confidence,
     %e.g. a detection with confidence -1.1 will probably never be
@@ -104,7 +127,7 @@ for i = 1:length(test_scenes)
     %size(img)
     %disp(size(img));
     %disp(size(cur_bboxes));
-    [is_maximum] = non_max_supr_bbox(cur_bboxes, cur_confidences, size(img));
+    [is_maximum] = non_max_supr_bbox(cur_bboxes, cur_confidences, size(img_original));
 
     cur_confidences = cur_confidences(is_maximum,:);
     cur_bboxes      = cur_bboxes(     is_maximum,:);

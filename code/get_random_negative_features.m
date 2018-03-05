@@ -54,15 +54,18 @@ for i= 1:num_images
     temp_width = floor(img_width/feature_params.template_size);
     max_index = max(temp_height,temp_width);
     
+    max_height = hog_height-ratio+1;
+    max_width = hog_width-ratio+1;
+    
     for j = 1:max_index
         %sample
-        randi_height = randi(temp_height);
-        randi_width = randi(temp_width);
+        randi_height = randi(max_height);
+        randi_width = randi(max_width);
         %retrieve the hog in corresponding template
-        start_h = 1+(randi_height-1)*ratio;
-        start_w = 1+(randi_width-1)*ratio;
-        end_h = randi_height*ratio;
-        end_w = randi_width*ratio;
+        start_h = randi_height;
+        start_w = randi_width;
+        end_h = randi_height+ratio-1;
+        end_w = randi_width+ratio-1;
         
         %disp(size((img_hog(start_h:end_h,start_w:end_w,1:31))));
         %disp(size(img_hog));
@@ -70,7 +73,7 @@ for i= 1:num_images
         features_neg = [features_neg;this_neg];
         count = count+1;
         if(count>num_samples)
-            break;
+            return;
         end;
     end
         
