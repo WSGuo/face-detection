@@ -37,7 +37,8 @@ num_images = length(image_files);
 
 %todo
 count = 0;
-D = (feature_params.template_size / feature_params.hog_cell_size)^2 * 36;
+%D = (feature_params.template_size / feature_params.hog_cell_size)^2 * 36;
+D = (feature_params.template_size / feature_params.hog_cell_size)^2 * 31;
 features_neg = [];
 for i= 1:num_images
     
@@ -46,7 +47,9 @@ for i= 1:num_images
     if size(img,3) >= 2 
         img = rgb2gray(img); 
     end
-    img_hog = vl_hog(single(img),feature_params.hog_cell_size,'variant','dalaltriggs');
+    %img_hog = vl_hog(single(img),feature_params.hog_cell_size,'variant','dalaltriggs');
+    img = single(img)/255;
+    img_hog = vl_hog(single(img),feature_params.hog_cell_size);
     [hog_height,hog_width,hog_chn] = size(img_hog);
     ratio = feature_params.template_size/feature_params.hog_cell_size;
     [img_height,img_width,img_chn] = size(img);
@@ -69,12 +72,13 @@ for i= 1:num_images
         
         %disp(size((img_hog(start_h:end_h,start_w:end_w,1:31))));
         %disp(size(img_hog));
-        this_neg = reshape((img_hog(start_h:end_h,start_w:end_w,1:36)),[1,D]);
+        %this_neg = reshape((img_hog(start_h:end_h,start_w:end_w,1:36)),[1,D]);
+        this_neg = reshape((img_hog(start_h:end_h,start_w:end_w,1:31)),[1,D]);
         features_neg = [features_neg;this_neg];
         count = count+1;
         if(count>num_samples)
             return;
-        end;
+        end
     end
         
 

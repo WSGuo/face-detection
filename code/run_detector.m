@@ -47,7 +47,8 @@ confidences = zeros(0,1);
 image_ids = cell(0,1);
 
 step_size = 1;
-D = (feature_params.template_size / feature_params.hog_cell_size)^2 * 36;
+%D = (feature_params.template_size / feature_params.hog_cell_size)^2 * 36;
+D = (feature_params.template_size / feature_params.hog_cell_size)^2 * 31;
 
 for i = 1:length(test_scenes)
       
@@ -69,7 +70,8 @@ for i = 1:length(test_scenes)
     rate = 1;
  while ((size(img,1)>feature_params.template_size)&&(size(img,2)>feature_params.template_size))
     
-    img_hog = vl_hog(single(img),feature_params.hog_cell_size,'variant','dalaltriggs');
+    %img_hog = vl_hog(single(img),feature_params.hog_cell_size,'variant','dalaltriggs');
+    img_hog = vl_hog(single(img),feature_params.hog_cell_size);
     [hog_height,hog_width,hog_chn] = size(img_hog);
     ratio = feature_params.template_size/feature_params.hog_cell_size;
     [img_height,img_width,img_chn] = size(img);
@@ -91,17 +93,27 @@ for i = 1:length(test_scenes)
             cur_y_min = floor((1+(start_h-1)*feature_params.hog_cell_size)/rate);
             cur_y_max = floor((end_h*feature_params.hog_cell_size)/rate);
             
-            this_hog = reshape((img_hog(start_h:end_h,start_w:end_w,1:36)),[1,D]);
+            %this_hog = reshape((img_hog(start_h:end_h,start_w:end_w,1:36)),[1,D]);
+            this_hog = reshape((img_hog(start_h:end_h,start_w:end_w,1:31)),[1,D]);
             
             this_con = this_hog*w+b;
             
-            if(this_con(1,1)<0.9)
-                continue;
+%             if(this_con(1,1)<0.9)
+%                 continue;
+%             end
+            if(this_con(1)<0.9)	         
+                if((size(cur_bboxes,1)==0)&&(this_con(1)>0))	
+                  %do nothing                	
+                elseif max(cur_confidences(:))<this_con(1)	
+                 %do nothing	
+                else	
+                    continue;	
+                end	
             end
             
             cur_bboxes = [cur_bboxes;[cur_x_min,cur_y_min,cur_x_max,cur_y_max]];
             
-            cur_confidences = [cur_confidences;this_con(1,1)];
+            cur_confidences = [cur_confidences;this_con(1)];
             cur_image_ids = [cur_image_ids;{test_scenes(i).name}];
         end
     end

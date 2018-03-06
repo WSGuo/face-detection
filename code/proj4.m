@@ -112,8 +112,11 @@ hold off;
 
 % Visualize the learned detector. This would be a good thing to include in
 % your writeup!
-n_hog_cells = sqrt(length(w) / 36); %specific to default HoG parameters
-imhog = vl_hog('render', single(reshape(w, [n_hog_cells n_hog_cells 36])),'variant','dalaltriggs', 'verbose') ;
+%n_hog_cells = sqrt(length(w) / 36); %specific to default HoG parameters
+%imhog = vl_hog('render', single(reshape(w, [n_hog_cells n_hog_cells 36])),'variant','dalaltriggs', 'verbose') ;
+n_hog_cells = sqrt(length(w) / 31); %specific to default HoG parameters
+%imhog = vl_hog('render', single(reshape(w, [n_hog_cells n_hog_cells 31])),'variant','dalaltriggs', 'verbose') ;
+imhog = vl_hog('render', single(reshape(w, [n_hog_cells n_hog_cells 31])), 'verbose') ;
 figure(3); imagesc(imhog) ; colormap gray; set(3, 'Color', [.988, .988, .988])
 
 pause(0.1) %let's ui rendering catch up
